@@ -33,12 +33,15 @@
 
                 axios.get('https://overpass-api.de/api/interpreter?data=[out:json];area[name="Wismar"];nwr(area)["emergency"="fire_hydrant"];out;')
                 .then((response) => {
-                    markers = response.data.elements
-                    markers.foreach((marker, index) => {
+                    markers = response.data.elements;
+                    console.log(markers);
+                    /*markers.map((marker, index) => {
                         console.log(marker);
-                        marker = L.marker([53.860626, 11.4467]).addTo(map);
-                        marker.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup();
-                    })
+                        return (
+                            marker = L.marker([53.860626, 11.4467]).addTo(map),
+                            //marker.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup()
+                        )
+                    })*/
                     
                 })
                 .catch((error) => {
