@@ -71,10 +71,10 @@
                 var polygon = L.polygon([
                     [e.latlng.lat -0.01, e.latlng.lng - 0.01],
                     [e.latlng.lat -0.01, e.latlng.lng + 0.01],
-                    [e.latlng.lat + 0.01, e.latlng.lng - 0.01],
-                    [e.latlng.lat + 0.01, e.latlng.lng + 0.1],
+                    [e.latlng.lat + 0.01, e.latlng.lng + 0.01],
+                    [e.latlng.lat + 0.01, e.latlng.lng - 0.1],
                 ]).addTo(map);
-                var circle = L.circle([e.latlng], {
+                var circle = L.circle(e.latlng, {
                     color: 'red',
                     fillColor: '#f03',
                     fillOpacity: 0.5,
@@ -82,7 +82,7 @@
                 }).addTo(map);
             }
 
-                    map.on('click', onMapClick);
+            map.on('click', onMapClick);
         </script>
     </body>
 </html>
