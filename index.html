@@ -35,11 +35,16 @@
                 .then((response) => {
                     markers = response.data.elements;
                     console.log(markers);
+                    markers.forEach(function (item) {
+                        const { tags } = item;
+                        marker = L.marker([item.lat, item.lon]).addTo(map);
+                        marker.bindPopup(`<b>${tags['fire_hydrant:type']}`).openPopup()
+                    });
                     /*markers.map((marker, index) => {
                         console.log(marker);
                         return (
-                            marker = L.marker([53.860626, 11.4467]).addTo(map),
-                            //marker.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup()
+                            
+                            //
                         )
                     })*/
                     
