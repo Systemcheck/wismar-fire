@@ -5,6 +5,7 @@
         <!-- Make sure you put this AFTER Leaflet's CSS -->
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
         <style>
             #map { height: 180px; }
         </style>
@@ -13,12 +14,38 @@
         <div id="map"></div>
 
         <script>
-            var map = L.map('map').setView([51.505, -0.09], 13);
+
+            var markers = array();
+
+            var map = L.map('map').setView([53.860626, 11.4467], 13);
+            
             L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    maxZoom: 19,
-                    attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                }).addTo(map);
-            var marker = L.marker([51.5, -0.09]).addTo(map);
+                maxZoom: 19,
+                attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">Daniel Richter</a>'
+            }).addTo(map);
+
+            function loadMarkers() {
+                let marker;
+
+                axios.get('https://overpass-api.de/api/interpreter?data=[out:json];area[name="Wismar"];nwr(area)["emergency"="fire_hydrant"];out;')
+                .then((response) => {
+                    markers = response.data.elements
+                    markers.foreach((marker, index) => {
+                        console.log(marker);
+                        marker = L.marker([53.860626, 11.4467]).addTo(map);
+                        marker.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup();
+                    })
+                    
+                })
+                .catch((error) => {
+                    console.log(error)
+                })
+            }
+            
+            loadMarkers();
+
+            
+            
 
             var circle = L.circle([51.508, -0.11], {
                     color: 'red',
@@ -31,7 +58,7 @@
                     [51.503, -0.06],
                     [51.51, -0.047]
                 ]).addTo(map);
-            marker.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup();
+            
                 circle.bindPopup("I am a circle.");
                 polygon.bindPopup("I am a polygon.");
             
