@@ -76,11 +76,18 @@
                     color: 'limegreen'
                 }).addTo(map);
 
+                polygon.on('click', function (e) {
+                    console.log(e);
+                    //mymap.fitBounds(polygon.getBounds());
+                    //mymap.fitBounds(this.getBounds());
+
+                    //getChilds(this.options.id);
+                });
                 var circle = L.circle([e.latlng.lat, e.latlng.lng], {
                     color: 'red',
                     fillColor: '#f03',
                     fillOpacity: 0.5,
-                    radius: 50
+                    radius: 5
                 }).addTo(map);
             }
 
