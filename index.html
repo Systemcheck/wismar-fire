@@ -68,13 +68,13 @@
             function onMapClick(e) {
                 //alert("You clicked the map at " + e.latlng);
                 console.log(e);
-                var polygon = L.polygon([
-                    [e.latlng.lat -0.01, e.latlng.lng - 0.01],
-                    [e.latlng.lat -0.01, e.latlng.lng + 0.01],
-                    [e.latlng.lat + 0.01, e.latlng.lng + 0.01],
-                    [e.latlng.lat + 0.01, e.latlng.lng - 0.1],
+                var polygon = L.polygon([ //lat: 53.8890138853662, lng: 11.454019546508789
+                    [e.latlng.lat -0.001, e.latlng.lng - 0.001],  //lat: 53.8990062762816, lng: 11.35402947664261
+                    [e.latlng.lat -0.001, e.latlng.lng + 0.001], //lat: 53.879008037048685, lng: 11.46402418613434 rechts unten
+                    [e.latlng.lat + 0.001, e.latlng.lng + 0.001], //lat: 53.89901417820767, lng: 11.464016139507295 rechts oben
+                    [e.latlng.lat + 0.001, e.latlng.lng - 0.001], //53.87901119933197, lng: 11.444020271301271 links oben
                 ]).addTo(map);
-                var circle = L.circle(e.latlng, {
+                var circle = L.circle([e.latlng.lat, e.latlng.lng], {
                     color: 'red',
                     fillColor: '#f03',
                     fillOpacity: 0.5,
