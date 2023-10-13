@@ -34,7 +34,6 @@
                 axios.get('https://overpass-api.de/api/interpreter?data=[out:json];area[name="Wismar"];nwr(area)["emergency"="fire_hydrant"];out;')
                 .then((response) => {
                     markers = response.data.elements;
-                    console.log(markers);
                     markers.forEach(function (item) {
                         const { tags } = item;
                         marker = L.marker([item.lat, item.lon]).addTo(map);
@@ -60,16 +59,11 @@
             
             
 
-            var circle = L.circle([51.508, -0.11], {
-                    color: 'red',
-                    fillColor: '#f03',
-                    fillOpacity: 0.5,
-                    radius: 500
-                }).addTo(map);
             
             
-                circle.bindPopup("I am a circle.");
-                polygon.bindPopup("I am a polygon.");
+            
+                //circle.bindPopup("I am a circle.");
+                //polygon.bindPopup("I am a polygon.");
             
             function onMapClick(e) {
                 //alert("You clicked the map at " + e.latlng);
@@ -79,6 +73,12 @@
                     [51.503, -0.06],
                     [51.51, -0.047]
                 ]).addTo(map);
+                var circle = L.circle([51.508, -0.11], {
+                    color: 'red',
+                    fillColor: '#f03',
+                    fillOpacity: 0.5,
+                    radius: 500
+                }).addTo(map);
             }
 
                     map.on('click', onMapClick);
