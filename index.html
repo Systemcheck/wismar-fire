@@ -38,8 +38,8 @@
                     markers.forEach(function (item) {
                         const { tags } = item;
                         marker = L.marker([item.lat, item.lon]).addTo(map);
-                        let name = tags['fire_hydrant:type'] == 'underground'? 'Unterflur-Hydrant' : 'OberFlur-Hydrant';
-                        marker.bindPopup(`<b>${name}`).openPopup();
+                        let name = tags['fire_hydrant:type'] == 'underground'? 'Unterflur-Hydrant' : 'Überflur-Hydrant';
+                        //marker.bindPopup(`<b>${name}`).openPopup();
                     });
                     /*markers.map((marker, index) => {
                         console.log(marker);
@@ -66,18 +66,20 @@
                     fillOpacity: 0.5,
                     radius: 500
                 }).addTo(map);
-            var polygon = L.polygon([
-                    [51.509, -0.08],
-                    [51.503, -0.06],
-                    [51.51, -0.047]
-                ]).addTo(map);
+            
             
                 circle.bindPopup("I am a circle.");
                 polygon.bindPopup("I am a polygon.");
             
-                function onMapClick(e) {
-                        alert("You clicked the map at " + e.latlng);
-                    }
+            function onMapClick(e) {
+                //alert("You clicked the map at " + e.latlng);
+                console.log(e);
+                var polygon = L.polygon([
+                    [53, -0.08],
+                    [51.503, -0.06],
+                    [51.51, -0.047]
+                ]).addTo(map);
+            }
 
                     map.on('click', onMapClick);
         </script>
