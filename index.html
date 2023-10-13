@@ -60,7 +60,17 @@
             
 
             
-            
+            var pointA = L.latLng(53.890617-0.001, 11.452045);
+            var pointB = L.latLng(53.890617-0.01, 11.452045-0.001);
+
+            var pointList = [pointA, pointB];
+
+            var st_line = L.polyline(pointList, {
+                    color: 'red',
+                    weight: 3,
+                    opacity: 0.5,
+                    smoothFactor: 1
+            }).addTo(mymap);
             
                 //circle.bindPopup("I am a circle.");
                 //polygon.bindPopup("I am a polygon.");
