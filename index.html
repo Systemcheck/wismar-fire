@@ -69,12 +69,12 @@
                 //alert("You clicked the map at " + e.latlng);
                 console.log(e);
                 var polygon = L.polygon([
-                    [e.latlng.lat-0.1, e.latlng.lng],
-                    [e.latlng.lat, e.latlng.lng-0.1],
-                    [e.latlng.lat + 0.1, e.latlng.lng],
-                    [e.latlng.lat, e.latlng.lng + 0.1],
+                    [e.latlng.lat -0.01, e.latlng.lng - 0.01],
+                    [e.latlng.lat -0.01, e.latlng.lng + 0.01],
+                    [e.latlng.lat + 0.01, e.latlng.lng - 0.01],
+                    [e.latlng.lat + 0.01, e.latlng.lng + 0.1],
                 ]).addTo(map);
-                var circle = L.circle([51.508, -0.11], {
+                var circle = L.circle([e.latlng], {
                     color: 'red',
                     fillColor: '#f03',
                     fillOpacity: 0.5,
