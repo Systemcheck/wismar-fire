@@ -1,47 +1,110 @@
 <html>
     <head>
+        <meta name="title" content="Wismar Fire, Hydranten in Nordwestmecklenburg" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
             integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
         <!-- Make sure you put this AFTER Leaflet's CSS -->
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/leaflet.path.drag@0.0.6/src/Path.Drag.min.js"></script>
         <style>
             body {
                 margin: 0;
                 padding: 0;
             }
-            #map { height: 100%; }
+            #map { height: 100%;}
+            #mapSwitch {
+                position: absolute;
+                bottom: 20;
+                left: 20;
+                height: 75;
+                width: 75;
+                z-index: 1000;
+                background: url('satellite.png');
+                border-radius: 10px;
+                border: 3px solid white;
+                box-shadow: 0px 0px 13px 4px #2a2a2a;
+                cursor:pointer;
+                background-size: cover;
+            }
+
+            #toolButton {
+                position: absolute;
+                top: 20;
+                right: 20;
+                height: 50;
+                width: 50;
+                z-index: 1000;
+                background: url('settings.jpg');
+                border-radius: 10px;
+                border: 3px solid white;
+                box-shadow: 0px 0px 13px 4px #2a2a2a;
+                cursor:pointer;
+                background-size: cover;
+                background-position: center;
+            }
+
+            #drawButton {
+                position: absolute;
+                top: 90;
+                right: 20;
+                height: 50;
+                width: 50;
+                z-index: 1000;
+                background: url('paint.png');
+                border-radius: 10px;
+                border: 3px solid white;
+                box-shadow: 0px 0px 13px 4px #2a2a2a;
+                cursor:pointer;
+                background-size: cover;
+                background-position: center;
+            }
         </style>
     </head>
     <body>
+        
         <div id="map"></div>
-
+        <div id="mapSwitch" onclick="toggleMap()"></div>
+        <div id="toolButton" onclick=""></div>
+        <div id="drawButton" onclick=""></div>
         <script>
 
             var markers = [];
+            var bereitstellungsRaum;
+            var mapStyle = "default";
 
             var map = L.map('map').setView([53.890617, 11.452045], 14);
             
-            L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 18,
+            var defaultLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 21,
                 attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">Daniel Richter</a>'
             }).addTo(map);
 
-            
+            var satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+            })//.addTo(map);
+
+            /*
             //L.tileLayer('./folder/path/{z}/{x}/{y}.png',
-            /*L.tileLayer('https://khms2.google.com/kh/v={v}?x={x}&y={y}&z={z}',
+            L.tileLayer('https://khms2.google.com/kh/v={v}?x={x}&y={y}&z={z}',
                 {
                     tms: true
-            }).addTo(map);
-
-            var Esri_WorldImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            }).addTo(map);var Esri_WorldImagery = L.tileLayer('./tiles/{z}/{y}/{x}/tile.png', {
                     attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-            }).addTo(map);*/
-
-            var Esri_WorldImagery = L.tileLayer('./tiles/{z}/{y}/{x}/tile.png', {
-                    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
-                }).addTo(map);
+                }).addTo(map);*/
+            
+            var unterflurIcon = L.icon({
+                iconUrl: 'hydrant.png',
+                iconSize: [50, 75],
+                iconAnchor: [25, 75],
+                popupAnchor: [0, -75],
+                tooltipAnchor:[0, -37],
+                //shadowUrl: 'my-icon-shadow.png',
+                shadowSize: [68, 95],
+                shadowAnchor: [22, 94]
+            });
 
             function loadMarkers() {
                 let marker;
@@ -49,19 +112,14 @@
                 axios.get('https://overpass-api.de/api/interpreter?data=[out:json];area[name="Wismar"];nwr(area)["emergency"="fire_hydrant"];out;')
                 .then((response) => {
                     markers = response.data.elements;
+                    
                     markers.forEach(function (item) {
                         const { tags } = item;
-                        marker = L.marker([item.lat, item.lon]).addTo(map);
-                        let name = tags['fire_hydrant:type'] == 'underground'? 'Unterflur-Hydrant' : 'Überflur-Hydrant';
-                        //marker.bindPopup(`<b>${name}`).openPopup();
+                        marker = L.marker([item.lat, item.lon], { icon: unterflurIcon }).addTo(map);
+                        let name = tags['fire_hydrant:type'] == 'underground' ? 'Unterflur-Hydrant' : 'Oberflur-Hydrant';
+                        marker.bindPopup(`<b>${name}`);//.openPopup();
+                        marker.bindTooltip(`<b>${name}`)
                     });
-                    /*markers.map((marker, index) => {
-                        console.log(marker);
-                        return (
-                            
-                            //
-                        )
-                    })*/
                     
                 })
                 .catch((error) => {
@@ -75,7 +133,7 @@
             
 
             
-            var pointA = L.latLng(53.890617-0.001, 11.452045);
+            /*var pointA = L.latLng(53.890617-0.001, 11.452045);
             var pointB = L.latLng(53.890617-0.01, 11.452045-0.001);
 
             var pointList = [pointA, pointB];
@@ -85,14 +143,14 @@
                     weight: 3,
                     opacity: 0.5,
                     smoothFactor: 1
-            }).addTo(map);
+            }).addTo(map);*/
             
                 //circle.bindPopup("I am a circle.");
                 //polygon.bindPopup("I am a polygon.");
             
             function onMapClick(e) {
-                //console.log(e);
-                var polygon = L.polygon([ 
+                console.log(e);
+                /*var polygon = L.polygon([ 
                     [e.latlng.lat - 0.00025, e.latlng.lng - 0.0005],  
                     [e.latlng.lat - 0.00025, e.latlng.lng + 0.0005], 
                     [e.latlng.lat + 0.00025, e.latlng.lng + 0.0005], 
@@ -100,23 +158,94 @@
                 ], {
                     color: 'limegreen'
                 }).addTo(map);
-
-                polygon.on('click', function (e) {
-                    console.log(e);
-                    //mymap.fitBounds(polygon.getBounds());
-                    //mymap.fitBounds(this.getBounds());
-
-                    //getChilds(this.options.id);
-                });
+                
                 var circle = L.circle([e.latlng.lat, e.latlng.lng], {
                     color: 'red',
                     fillColor: '#f03',
                     fillOpacity: 0.5,
-                    radius: 5
+                    radius: 20,
+                    
+                    bubblingMouseEvents: false,
                 }).addTo(map);
+                circle.on('dragend', function (e) {
+                    console.log(e.latlngs);
+                });*/
+
+                var circleMarker = L.circle([e.latlng.lat, e.latlng.lng], {
+                    radius: 20,
+                    fillColor: "#ff0097",
+                    color: "#000",
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.8,
+                    draggable: true,
+                    bubblingMouseEvents: false
+                }).addTo(map);
+                circleMarker.bindPopup(`<b>Bereitstellungsraum`).openPopup();
+                circleMarker.on("click", function (e) {
+                    e.originalEvent.preventDefault(); //This does not work
+                    circleMarker.setStyle({ fillColor: '#1b1b1b' });
+                });
+                circleMarker.on('dragend', function (e) {
+                    console.log(e.latlngs);
+                });
+
+
+                /*var bounds = [[e.latlng.lat - 0.00025, e.latlng.lng - 0.0005], [e.latlng.lat + 0.00025, e.latlng.lng + 0.0005]];
+
+                // create an orange rectangle
+                polygon = L.rectangle(bounds, { color: "#ff7800", weight: 1, draggable: true }).addTo(map);
+                bereitstellungsRaum.on('dragend', function (e) {
+                    console.log(e.target._latlngs[0]);
+                });*/
+
             }
 
+            /*var circleMarker = L.circleMarker([53.890617 + 0.00025, 11.452045 + 0.0005], {
+                    radius: 8,
+                    fillColor: "#ff0097",
+                    color: "#000",
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.8,
+                    bubblingMouseEvents: false
+                }).addTo(map);
+            circleMarker.on("click", function (e) {
+                e.originalEvent.preventDefault(); //This does not work
+                circleMarker.setStyle({ fillColor: '#1b1b1b' });
+            });*/
+
             map.on('click', onMapClick);
+
+            function pythagorean_theorem(x, y) {
+                if ((typeof x !== 'number') || (typeof y !== 'number'))
+                    return false;
+                return Math.sqrt(x * x + y * y);
+            }
+
+            /*var bounds = [[53.890617 - 0.001, 11.452045], [53.890617 + 0.00025, 11.452045 + 0.0005]];
+            bereitstellungsRaum = L.rectangle(bounds, { color: "#ff7800", weight: 1,draggable: true }).addTo(map);
+
+            bereitstellungsRaum.on('dragend', function (e) {
+                console.log(e.target._latlngs[0]);
+            });*/
+            console.log(pythagorean_theorem(10, 10));
+
+            function toggleMap() {
+                console.log(mapStyle)
+                let element = document.getElementById('mapSwitch')
+                mapStyle = mapStyle == 'default' ? 'satellite' : 'default'
+                element.style.background = mapStyle == 'default' ? 'url(satellite.png)' : 'url(default.png)'
+                element.style.backgroundSize='cover';
+                if(map.hasLayer(defaultLayer)) {
+                    map.addLayer(satelliteLayer);
+                    map.removeLayer(defaultLayer);
+                } else {
+                    map.addLayer(defaultLayer);
+                    map.removeLayer(satelliteLayer);
+                 }
+                                        
+            }
         </script>
     </body>
 </html>
